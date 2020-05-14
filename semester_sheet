@@ -1,0 +1,98 @@
+import xlrd
+
+
+class Student(object):
+    as10_new = None
+    as5_new = None
+    studbil_new = None
+    name_new = None
+    number_new = None
+
+
+Shkala5 = {
+    'неуд': 1,
+    'уд': 2,
+    'хор': 3,
+    'отл': 4
+}
+
+as10 = []
+as5 = []
+studbil = []
+name = []
+number = []
+
+name_of_file = input()
+fil = xlrd.open_workbook(name_of_file, formatting_info=True)
+sheet = fil.sheet_by_index(0)
+
+rownum = 0
+
+for rr in range(sheet.nrows):
+    for cc in range(sheet.ncols):
+        if sheet.cell(rr, cc).value == 'Номер студенческого билета':
+            rownum = rr + 2
+
+rr = rownum
+rend = 0
+while (True):
+    if sheet.cell(rr, 2).value == '':
+        rend = rr
+        break
+    rr += 1
+rend -= 1
+
+students = []
+
+while rownum <= rend:
+    j = Student()
+    # row = sheet.row_values(rownum)
+    n = 1
+    while n <= 3:
+        if n == 1:
+            j.number_new = int(sheet.cell(rownum, n).value)
+        elif n == 2:
+            j.studbil_new = sheet.cell(rownum, n).value
+        elif n == 3:
+            j.name_new = sheet.cell(rownum, n).value
+        # print(sheet.cell(rownum, n).value)
+        n += 1
+    n = 9
+    while n <= 10:
+        if n == 9:
+            j.as10_new = int(sheet.cell(rownum, n).value)
+        elif n == 10:
+            j.as5_new = sheet.cell(rownum, n).value
+        # print(sheet.cell(rownum, n).value)
+        n += 1
+    students.append(j)
+    rownum += 1
+
+n = 0
+while n <= 19:
+    print(students[n].number_new, students[n].studbil_new, students[n].name_new, students[n].as10_new,
+          students[n].as5_new)
+    n += 1
+print()
+
+print(
+    'Введите [1 / 2 / 3 / 4 / 5] для сортировки по [номеру / студ. билету / ФИО / 10-бальной шкале / 5-бальной шкале]')
+d = int(input())
+
+students.sort(key=lambda Student: Student.number_new)
+
+if d == 1:
+    students.sort(key=lambda Student: Student.number_new)
+elif d == 2:
+    students.sort(key=lambda Student: Student.studbil_new)
+elif d == 3:
+    students.sort(key=lambda Student: Student.name_new)
+elif d == 4:
+    students.sort(key=lambda Student: Student.as10_new, reverse=True)
+elif d == 5:
+    students.sort(key=lambda Student: Shkala5[Student.as5_new], reverse=True)
+n = 0
+while n <= 19:
+    print(students[n].number_new, students[n].studbil_new, students[n].name_new, students[n].as10_new,
+          students[n].as5_new)
+    n += 1
