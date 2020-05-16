@@ -60,13 +60,11 @@ QMenuBar::item
 {
     background-color: #323232;
     background: transparent;
-    /* padding: 2px 20px 2px 20px; */
 }
 
 QMenuBar::item:selected
 {
     background: transparent;
-    /* border: 1px solid #76797C; */
 }
 
 QMenuBar::item:hover {
@@ -86,16 +84,13 @@ QMenuBar::item:pressed
 QMenu
 {
     background-color: #323232;
-    /* border: 1px solid #76797C; */
     color: #eff0f1;
-    /*margin: 2px; */
 }
 
 QMenu::item
 {
     padding: 2px 30px 2px 30px;
-    /*margin-left: 5px;*/
-    border: 1px solid transparent; /* reserve space for selection border */
+    border: 1px solid transparent;
 }
 
 QMenu::item:selected
@@ -124,7 +119,6 @@ QWidget:disabled
 
 QWidget:focus, QMenuBar:focus,QToolBar:focus,QScrollAreaViewer:focus
 {
-    /* border: 2px solid #d1cb1f; */
 }
 
 QTabWidget:focus, QCheckBox:focus, QRadioButton:focus, QSlider:focus
@@ -327,9 +321,6 @@ QMenu::separator
     margin-right: 5px;
 }
 
-
-
-
 QPushButton
 {
     color: #eff0f1;
@@ -369,53 +360,10 @@ QPushButton:pressed
     padding-bottom: -17px;
 }
 
-QComboBox
-{
-    selection-background-color: #D1DBCB;
-    background-color: #31363B;
-    border-style: solid;
-    border: 1px solid #76797C;
-    border-radius: 2px;
-    padding: 5px;
-    min-width: 75px;
-}
 
 QPushButton:checked{
     background-color: #76797C;
     border-color: #6A6969;
-}
-
-QComboBox:hover,QPushButton:hover,QAbstractSpinBox:hover,QLineEdit:hover,QTextEdit:hover,QPlainTextEdit:hover,QAbstractView:hover,QTreeView:hover
-{
-    border: 1px solid #D1DBCB;
-}
-
-QComboBox:on
-{
-    padding-top: 0px;
-    padding-left: 4px;
-    selection-background-color: #4a4a4a;
-}
-
-QComboBox QAbstractItemView
-{
-    background-color: #1e1e1e;
-    border-radius: 2px;
-    border: 1px solid #76797C;
-    selection-background-color: #D1DBCB;
-}
-
-QComboBox::drop-down
-{
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 15px;
-
-    border-left-width: 0px;
-    border-left-color: darkgray;
-    border-left-style: solid;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
 }
 
 QTabWidget{
@@ -429,7 +377,7 @@ QTabWidget::pane {
 }
 
 QTabWidget::tab-bar {
-    left: 5px; /* move to the right by 5px */
+    left: 5px;
 }
 
 QTabBar
