@@ -1,6 +1,8 @@
 import xlrd
 
-book = xlrd.open_workbook("D:\\Python\\PY PROJECTS\\19pi.xlsx")
+#"D:\\Python\\PY PROJECTS\\19pi.xlsx"
+file_path = input()
+book = xlrd.open_workbook(file_path)
 sheet = book.sheet_by_index(book.nsheets - 1)
 data = {}
 rownum = sheet.nrows
