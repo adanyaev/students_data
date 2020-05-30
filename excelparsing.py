@@ -1,4 +1,5 @@
 import xlrd
+import matplotlib.pyplot as plt
 
 
 def parsing():
@@ -72,14 +73,24 @@ def parsing():
         tmp_name = sheet.cell_value(startrow, i)
         for j in range(startrow + 1, rownum):
             tmp_value = sheet.cell_value(j, i)
+            if tmp_value == "":
+                continue
             tmp_list.append(tmp_value)
         data.update({tmp_name: tmp_list})
 
     return data, students
 
 
-def drawHystogramm():
-    print(1)
+def drawHystogramm(subject):
+    plt.xlabel("Баллы ЕГЭ")
+    plt.ylabel("Количество сдавших")
+    plt.title("Распределение баллов дисциплины: " + subject)
+    ages = main_data[subject]
+    ages.sort(key=int)
+    bins = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110]
+    plt.hist(ages, bins=bins, edgecolor='black')
+    plt.xlim(min(ages)-10, 110)
+    plt.show()
 
 
 def topFive(subject):
@@ -90,11 +101,14 @@ def topFive(subject):
         print(students_list[i]["ФИО"] + " - " + str(students_list[i][subject]))
     print("----------------------------------\n")
 
+
 main_data, students_list = parsing()
-topFive("Математика")
-topFive("Информатика и ИКТ")
-topFive("Русский язык")
-topFive("Экзамен 4")
+drawHystogramm("Информатика и ИКТ")
+
+#topFive("Математика")
+#topFive("Информатика и ИКТ")
+#topFive("Русский язык")
+#topFive("Экзамен 4")
 
 
 
