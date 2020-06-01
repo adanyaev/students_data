@@ -1,6 +1,6 @@
 import xlrd
 import matplotlib.pyplot as plt
-
+import math
 
 def parsing():
     # "D:\\Python\\PY PROJECTS\\19pi.xlsx"
@@ -81,6 +81,37 @@ def parsing():
     return data, students
 
 
+def drawPiechart():
+    values = sorted(main_data["Сумма конкурсных баллов"], key=int)
+    colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
+    slices = []
+    if max(values) < 320:
+        max_score = 420
+        limits = [150, 240, 290, 320]
+        labels = ["0-150", "151-260", "261-280", "281-320"]
+    else:
+        max_score = 320
+        limits = [190, 280, 350, 420]
+        labels = ["0-190", "191-280", "281-350", "351-420"]
+    len_ = len(values)
+    j = 0
+    for i in range(0, 4):
+        counter = 0
+        while j < len_ and values[j] <= limits[i]:
+            counter += 1
+            j += 1
+        slices.append(counter)
+    total = sum(slices)
+    plt.title("Распределение конкурсных баллов")
+    plt.pie(slices, shadow=True, colors=colors, wedgeprops={"edgecolor": "black"},  autopct=lambda p: '{:.0f}'.format(p * total / 100), startangle=90)
+    plt.legend(labels, loc="best")
+    plt.axis('equal')
+    plt.tight_layout()
+    plt.show()
+
+
+
+
 def drawHystogramm(subject):
     plt.xlabel("Баллы ЕГЭ")
     plt.ylabel("Количество сдавших")
@@ -103,8 +134,8 @@ def topFive(subject):
 
 
 main_data, students_list = parsing()
-drawHystogramm("Информатика и ИКТ")
-
+drawPiechart()
+#drawHystogramm("Информатика и ИКТ")
 #topFive("Математика")
 #topFive("Информатика и ИКТ")
 #topFive("Русский язык")
