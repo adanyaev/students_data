@@ -3,7 +3,10 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 import sys
 import subprocess
-
+from random import choice
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
+from Canvas import Graphic
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -11,12 +14,41 @@ class MainWindow(QMainWindow):
         self.InitUI()
         self.MakeFrames()
         self.CreateMenu()
+        self.gen_dict()
+        self.ImportIntoTable()
+
+    def gen_dict(self):
+        lst = ['d', 'g', 'e', 'a', 'u']
+        numbers = [1, 3, 5, 2, 6, 7, 8, 9]
+        dictionary = {}
+        values = (1, 3, 5)
+        for i in range(20):
+            dictionary[choice(lst)] = values
+        print(dictionary)
+        return dictionary
+
+    def CreateGraphic(self):
+        self.graphic.Plot()
 
     def InitUI(self):
         self.setStyleSheet(open('style.css', 'r').read())
         self.setWindowTitle('title')
         self.setGeometry(500, 500, 500, 500)
+        self.showMaximized()
+        self.graphic = Graphic(5, 5, 100)
+        self.table = QTableWidget()
+        self.graphic_frame = QFrame()
+        self.button_lay = QHBoxLayout()
+        self.graphic_lay = QVBoxLayout()
+
+#        self.button_lay.addWidget(self.build_graphic_btn)
+ #       self.graphic_lay.addItem(self.button_lay)
+  #      self.graphic_lay.addWidget(self.graphic)
+   #     self.graphic_frame.setLayout(self.graphic_lay)
+
+
         self.txt_field = QTextEdit()
+        self.txt_field2 = QTextEdit()
         self.txt_field.setStyleSheet(open('style.css', 'r').read())
         self.file_tree = QTreeView()
         self.manage_tabs = QTabWidget()
@@ -28,21 +60,72 @@ class MainWindow(QMainWindow):
         self.scroll_info.setWidgetResizable(True)
         self.group_box = QGroupBox('MainWindow')
         self.setCentralWidget(self.group_box)
-        self.show_info_tabs.addTab(self.txt_field, 'Text Tab')
-        self.show_info_tabs.addTab(self.img_label, 'Image')
+        self.show_info_tabs.addTab(self.table, 'Text Tab')
+        self.show_info_tabs.addTab(self.graphic_frame, 'Text tab')
         self.manage_tabs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.manage_tabs.setAutoFillBackground(True)
         self.show_info_tabs.setStyleSheet(open('style.css', 'r').read())
-#        self.txt_field.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.process_btn = QPushButton('Process')
+        self.build_graphic_btn = QPushButton('Create graphic')
+        self.build_graphic_btn.clicked.connect(self.CreateGraphic)
+        self.file_type_combo = QComboBox()
+
+        self.student_combo = QComboBox()
+
+        self.button_lay.addWidget(self.build_graphic_btn)
+        self.button_lay.addWidget(self.student_combo)
+        self.graphic_lay.addItem(self.button_lay)
+        self.graphic_lay.addWidget(self.graphic)
+        self.graphic_frame.setLayout(self.graphic_lay)
+
+    #        self.txt_field.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 #        self.txt_field.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+
+    def ImportIntoTable(self):
+        self.data = self.gen_dict()
+        self.table.setRowCount(len(self.data.keys())*3)
+        self.table.setColumnCount(3)
+        self.table.horizontalHeader().setVisible(False)
+        self.table.verticalHeader().setVisible(False)
+        self.table.verticalHeader().sectionResizeMode(QHeaderView.Fixed)
+        self.table.resizeColumnsToContents()
+        self.table.scrollToBottom()
+
+        names = self.data.keys()
+        marks = []
+
+        for i in self.data.values():
+            for j in i:
+                marks.append(j)
+        marks.reverse()
+
+        for i in range(len(names)*3):
+            self.table.setSpan(i, 0, 3, 1)
+        cnt = 0
+        var = 0
+        for name in names:
+            name_item = QTableWidgetItem()
+            subject_item = QTableWidgetItem()
+            mark_item = QTableWidgetItem()
+            name_item.setText(str(name))
+            mark_item.setText(str(marks.pop()))
+            self.table.setItem(cnt, 0, name_item)
+            self.table.setItem(var, 1, mark_item)
+            cnt += 3
+            var += 1
 
 
     def MakeFrames(self):
         form_frame = QFrame()
         form_frame.setFrameShape(QFrame.StyledPanel)
         form_lay = QVBoxLayout()
+        inside_lay = QHBoxLayout()
 
         form_lay.addWidget(self.manage_tabs)
+        form_lay.addItem(inside_lay)
+        inside_lay.addWidget(self.process_btn)
+        inside_lay.addWidget(self.file_type_combo)
         form_frame.setLayout(form_lay)
         ver_frame = QFrame()
         ver_frame.setFrameShape(QFrame.StyledPanel)
@@ -52,23 +135,15 @@ class MainWindow(QMainWindow):
         ver_box.addWidget(self.scroll_info)
         ver_frame.setLayout(ver_box)
 
-        bottom_frame = QFrame()
-        bottom_frame.setFrameShape(QFrame.StyledPanel)
-        bottom_frame.setMinimumWidth(150)
-        bottom_lay = QFormLayout()
-        bottom_frame.setLayout(bottom_lay)
-
         horizontal_splitter = QSplitter(QtCore.Qt.Horizontal)
         horizontal_splitter.addWidget(form_frame)
         horizontal_splitter.addWidget(ver_frame)
 
         vertical_splitter = QSplitter(QtCore.Qt.Vertical)
         vertical_splitter.addWidget(horizontal_splitter)
-        vertical_splitter.addWidget(bottom_frame)
 
         vbox = QVBoxLayout()
         vbox.addWidget(vertical_splitter)
-        bottom_frame.setStyleSheet(open('style.css', 'r').read())
         ver_frame.setStyleSheet(open('style.css', 'r').read())
         form_frame.setStyleSheet(open('style.css', 'r').read())
         self.group_box.setLayout(vbox)
@@ -113,23 +188,22 @@ class MainWindow(QMainWindow):
         if image_path.split('/')[-1] == 'exe':
             subprocess.call(file_path)
             return
-        if image_path.split('.')[-1] != 'txt':
+        if image_path.split('.')[-1] == 'png':
             self.img_label.setPixmap(QtGui.QPixmap(file_path))
             self.img_slider = QSlider(QtCore.Qt.Horizontal, self.img_label)
             self.setGeometry(60, 50, 100, 500)
             return
         file = open(file_path, 'r')
         info_from_file = file.read()
+
         self.txt_field.setText(info_from_file)
         file.close()
 
+def main():
+    app = QApplication(sys.argv)
+    win = MainWindow()
+    win.show()
+    app.exec_()
 
-app = QApplication(sys.argv)
-win = MainWindow()
-win.show()
-app.exec_()
-
-
-
-
-
+if __name__ == '__main__':
+    main()
