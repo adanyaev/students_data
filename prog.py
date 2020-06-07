@@ -69,9 +69,9 @@ def Current_student_grades(*file_names):
             print('Empty file' + file_name)
             continue
     return students
-arr = []
-mytuple = ("D:\\19ПИ-3.xlsx", "D:\\19ПИ-1-2.xlsx", "D:\\vsc.xlsx")
-arr = Current_student_grades(*mytuple)
-for i in range(len(arr)):
-    print(str(arr[i].name) + " " + str(arr[i].group) + " ")
-    print(arr[i].results)
+#arr = []
+#mytuple = ("D:\\19ПИ-3.xlsx", "D:\\19ПИ-1-2.xlsx", "D:\\vsc.xlsx")     пример входных данных
+#arr = Current_student_grades(*mytuple)                                 вызов моей функции, передаем кортеж в качестве аргумента
+#for i in range(len(arr)):                                              вывод результата работы функции
+#    print(str(arr[i].name) + " " + str(arr[i].group) + " ")
+#    print(arr[i].results)
