@@ -1,4 +1,6 @@
 import xlrd
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def get_schedule(paths):
@@ -111,11 +113,86 @@ def get_schedule(paths):
         module['table'] = table
         tables.append(module)
     return tables
-    
+
+
+def print_chart(tables, module, group):
+
+    schedule = tables[module]['table'][group]['schedule']
+    module_length = tables[module]['module_length']
+    working_hours = {}
+    windows = {}
+    working_hours['lower_week'] = [0 for i in range(6)]
+    working_hours['upper_week'] = [0 for i in range(6)]
+    windows['lower_week'] = [0 for i in range(6)]
+    windows['upper_week'] = [0 for i in range(6)]
+
+    for i in range(6):
+        first = -1
+        last = 0
+        for k in range(6):
+            if schedule[i]['lower_week'][k]['subject'] != "Нет пары":
+                working_hours['lower_week'][i] = working_hours['lower_week'][i] + 1
+                last = k
+                if first == -1:
+                    first = k
+        for k in range(first, last):
+            if schedule[i]['lower_week'][k]['subject'] == "Нет пары":
+                windows['lower_week'][i] = windows['lower_week'][i] + 1
+        first = -1
+        last = 0
+        for k in range(6):
+            if schedule[i]['upper_week'][k]['subject'] != "Нет пары":
+                working_hours['upper_week'][i] = working_hours['upper_week'][i] + 1
+                last = k
+                if first == -1:
+                    first = k
+        for k in range(first, last):
+            if schedule[i]['upper_week'][k]['subject'] == "Нет пары":
+                windows['upper_week'][i] = windows['upper_week'][i] + 1
+
+    work = [0 for i in range(6)]
+    win = [0 for i in range(6)]
+    k = module_length//14
+    for i in range(k):
+        for j in range(6):
+            work[j] = work[j] + working_hours['upper_week'][j]
+            work[j] = work[j] + working_hours['lower_week'][j]
+            win[j] = win[j] + windows['upper_week'][j]
+            win[j] = win[j] + windows['lower_week'][j]
+    k = module_length % 14
+    if k >= 7:
+        for j in range(6):
+            work[j] = work[j] + working_hours['upper_week'][j]
+            win[j] = win[j] + windows['upper_week'][j]
+        for j in range(k % 7):
+            work[j] = work[j] + working_hours['lower_week'][j]
+            win[j] = win[j] + windows['lower_week'][j]
+    else:
+        for j in range(k):
+            work[j] = work[j] + working_hours['upper_week'][j]
+            win[j] = win[j] + windows['upper_week'][j]
+
+    days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
+    data = [work, win]
+    x = np.arange(6)
+    fig, ax = plt.subplots()
+    ax.bar(x + 0.25, data[0], color='b', width=0.25, label="Учебные часы")
+    ax.bar(x + 0.5, data[1], color='g', width=0.25, label="Окна")
+    ax.set_xlabel('Дни недели')
+    ax.set_ylabel('Академические часы')
+    ax.set_xticks(x + 0.375)
+    ax.set_xticklabels(days)
+    ax.legend()
+
+    plt.show()
+
+    return
+
 
 if __name__ == "__main__":
-    path = r'D:\other\code\PyCode\excel\module3.1.xls'
-    paths = [path]
+    path1 = r'D:\other\code\PyCode\excel\module2.1.xls'
+    path2 = r'D:\other\code\PyCode\excel\module3.1.xls'
+    paths = [path1, path2]
     tables = get_schedule(paths)
     table = tables[0]['table']
     print(table)
@@ -124,4 +201,5 @@ if __name__ == "__main__":
     print(table[1]["schedule"][0]["place"])
     print(table[1]["schedule"][0]["lower_week"][0])
     print(table[1]["schedule"][0]["upper_week"][0])
-    print(tables[0]['module_length'])
+    print(tables[1]['module_length'])
+    print_chart(tables, 1, 0)
