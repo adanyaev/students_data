@@ -1,10 +1,8 @@
 import xlrd
 import matplotlib.pyplot as plt
-import math
 
 
 def start_data_parsing(file_path):      # Принимает путь к файлу (только к одному), который нужно считать
-    # "D:\\Python\\PY PROJECTS\\19pi.xlsx"
     book = xlrd.open_workbook(file_path)
     sheet = book.sheet_by_index(book.nsheets - 1)
     data = {}
@@ -25,12 +23,8 @@ def start_data_parsing(file_path):      # Принимает путь к фай�
             print("Error")
         return startrow, startcol
 
+    startrow, startcol = findStartInTable()         # Находим позицию, с которой начинаем парсить
 
-    # Get positions
-    startrow, startcol = findStartInTable()
-
-
-    # Get data from excel
     for i in range(startcol, colnum):
         tmp_list = []
         tmp_name = sheet.cell_value(startrow, i)
@@ -112,15 +106,15 @@ def start_data_drawHistogramm(subject):     # Принимает названи�
     plt.show()
 
 
-def start_data_topFive(subject):            # Принимает название предмета
+def start_data_topTen(subject):            # Принимает название предмета
     print("Топ 10 людей по дисциплине: " + subject)
     students_list.sort(reverse=True, key=lambda n: n[subject])
     for i in range(0, 10):
-        print(students_list[i]['ФИО'] + " - " + str(students_list[i][subject]))
+        print(students_list[i]['ФИО'], "-", str(students_list[i][subject]))
     return
 
 
 main_data, students_list = start_data_parsing("D:\\Python\\PY PROJECTS\\19pi.xlsx")
 #start_data_drawHistogramm('Информатика и ИКТ')
 #start_data_drawPiechart()
-start_data_topFive('Математика')
+#start_data_topTen('Математика')
