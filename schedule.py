@@ -8,20 +8,19 @@ def get_schedule(paths):
     for path in paths:
         book = xlrd.open_workbook(path, formatting_info=True)
         sheet = book.sheet_by_index(0)
-
         module = {}
-        places = []
 
         i = 0
         while sheet.cell_value(i, 0).find("Факультет") == -1:
             i += 1
         txt = sheet.cell_value(i, 0)
         pos1 = txt.find('.')
-        pos2 = txt.find('.', pos1+1)
-        start = int(txt[pos1-2:pos1]) + (int(txt[pos1+1:pos1+3])-1) * 30
-        end = int(txt[pos2 - 2:pos2]) + (int(txt[pos2 + 1:pos2 + 3])-1) * 30
-        module['module_length'] = end-start
+        pos2 = txt.find('.', pos1 + 1)
+        start = int(txt[pos1 - 2:pos1]) + (int(txt[pos1 + 1:pos1 + 3]) - 1) * 30
+        end = int(txt[pos2 - 2:pos2]) + (int(txt[pos2 + 1:pos2 + 3]) - 1) * 30
+        module['module_length'] = end - start
 
+        places = []
         i = 0
         while sheet.cell_value(i, 0).find("Корпус") == -1:
             i += 1
@@ -40,12 +39,12 @@ def get_schedule(paths):
             places.append({"name": sheet.cell_value(start, i), "color": pattern_colour})
             i += 1
 
-        isMerged = [[False] * sheet.ncols for i in range(sheet.nrows)]
+        is_merged = [[None] * sheet.ncols for i in range(sheet.nrows)]
         for crange in sheet.merged_cells:
             rlo, rhi, clo, chi = crange
             for row in range(rlo, rhi):
                 for col in range(clo, chi):
-                    isMerged[row][col] = (rlo, clo)
+                    is_merged[row][col] = (rlo, clo)
 
         table = []
         column = 2
@@ -64,29 +63,27 @@ def get_schedule(paths):
                     if pattern_colour == k["color"]:
                         day["place"] = k["name"]
                         break
+
                 upper_week = []
                 lower_week = []
                 for j in range(i, i + 6):
                     lesson = {}
-
                     lesson["subject"] = sheet.cell_value(j, column).strip()
                     lesson["cab"] = sheet.cell_value(j, column + 1)
-
-                    if lesson["subject"] == "" and isMerged[j][column] == False:
+                    if lesson["subject"] == "" and is_merged[j][column] is None:
                         lesson["subject"] = "Нет пары"
                         lesson["cab"] = "Нет пары"
-                    elif isMerged[j][column] != False:
-                        lesson["subject"] = sheet.cell_value(isMerged[j][column][0], isMerged[j][column][1])
-                        c = isMerged[j][column][1]
-                        while isMerged[j][column] == isMerged[isMerged[j][column][0]][c]:
+                    elif is_merged[j][column]:
+                        lesson["subject"] = sheet.cell_value(is_merged[j][column][0], is_merged[j][column][1])
+                        c = is_merged[j][column][1]
+                        while is_merged[j][column] == is_merged[is_merged[j][column][0]][c]:
                             c += 1
-                        lesson["cab"] = sheet.cell_value(isMerged[j][column][0], c)
+                        lesson["cab"] = sheet.cell_value(is_merged[j][column][0], c)
                     lesson["subject"] = lesson["subject"].strip()
-
-                    if isMerged[j][column] == False:
+                    if is_merged[j][column] is None:
                         xfx = sheet.cell_xf_index(j, column)
                     else:
-                        xfx = sheet.cell_xf_index(isMerged[j][column][0], isMerged[j][column][1])
+                        xfx = sheet.cell_xf_index(is_merged[j][column][0], is_merged[j][column][1])
                     xf = book.xf_list[xfx]
                     if xf.border.diag_down == 1:
                         text = lesson["subject"].split("\n", maxsplit=1)
@@ -116,15 +113,14 @@ def get_schedule(paths):
 
 
 def print_chart(tables, module, group):
-
     schedule = tables[module]['table'][group]['schedule']
     module_length = tables[module]['module_length']
-    working_hours = {}
-    windows = {}
-    working_hours['lower_week'] = [0 for i in range(6)]
-    working_hours['upper_week'] = [0 for i in range(6)]
-    windows['lower_week'] = [0 for i in range(6)]
-    windows['upper_week'] = [0 for i in range(6)]
+
+    working_hours = {'lower_week': [0 for i in range(6)],
+                     'upper_week': [0 for i in range(6)]}
+
+    windows = {'lower_week': [0 for i in range(6)],
+               'upper_week': [0 for i in range(6)]}
 
     for i in range(6):
         first = -1
@@ -150,30 +146,28 @@ def print_chart(tables, module, group):
             if schedule[i]['upper_week'][k]['subject'] == "Нет пары":
                 windows['upper_week'][i] = windows['upper_week'][i] + 1
 
-    work = [0 for i in range(6)]
-    win = [0 for i in range(6)]
-    k = module_length//14
-    for i in range(k):
-        for j in range(6):
-            work[j] = work[j] + working_hours['upper_week'][j]
-            work[j] = work[j] + working_hours['lower_week'][j]
-            win[j] = win[j] + windows['upper_week'][j]
-            win[j] = win[j] + windows['lower_week'][j]
+    total_work = [0 for i in range(6)]
+    total_win = [0 for i in range(6)]
+
+    k = module_length // 14
+    for j in range(6):
+        total_work[j] = (working_hours['upper_week'][j] + working_hours['lower_week'][j]) * k
+        total_win[j] = (windows['upper_week'][j] + windows['lower_week'][j]) * k
     k = module_length % 14
     if k >= 7:
         for j in range(6):
-            work[j] = work[j] + working_hours['upper_week'][j]
-            win[j] = win[j] + windows['upper_week'][j]
+            total_work[j] = total_work[j] + working_hours['upper_week'][j]
+            total_win[j] = total_win[j] + windows['upper_week'][j]
         for j in range(k % 7):
-            work[j] = work[j] + working_hours['lower_week'][j]
-            win[j] = win[j] + windows['lower_week'][j]
+            total_work[j] = total_work[j] + working_hours['lower_week'][j]
+            total_win[j] = total_win[j] + windows['lower_week'][j]
     else:
         for j in range(k):
-            work[j] = work[j] + working_hours['upper_week'][j]
-            win[j] = win[j] + windows['upper_week'][j]
+            total_work[j] = total_work[j] + working_hours['upper_week'][j]
+            total_win[j] = total_win[j] + windows['upper_week'][j]
 
     days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
-    data = [work, win]
+    data = [total_work, total_win]
     x = np.arange(6)
     fig, ax = plt.subplots()
     ax.bar(x + 0.25, data[0], color='b', width=0.25, label="Учебные часы")
