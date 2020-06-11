@@ -107,13 +107,13 @@ def start_data_drawHistogramm(subject):     # Принимает названи�
 
 
 def start_data_topTen(subject):            # Принимает название предмета
-    print("Топ 10 людей по дисциплине: " + subject)
+    print("Топ", str(top_num),  "людей по дисциплине:", subject)
     students_list.sort(reverse=True, key=lambda n: n[subject])
-    for i in range(0, 10):
+    for i in range(top_num):
         print(students_list[i]['ФИО'], "-", str(students_list[i][subject]))
     return
 
-
+top_num = 10
 main_data, students_list = start_data_parsing("D:\\Python\\PY PROJECTS\\19pi.xlsx")
 #start_data_drawHistogramm('Информатика и ИКТ')
 #start_data_drawPiechart()
