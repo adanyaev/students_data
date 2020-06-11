@@ -79,7 +79,7 @@ def Current_student_grades(*file_names):
 
 
 def Graph_Of_Current_Grades(students, number_of_st):
-    fig = plt.figure(figsize=(10, 6))         #размер окна задается тут
+    fig = plt.figure(figsize=(10.3, 6.2))         #размер окна задается тут
     ax = fig.add_subplot()
     plt.ymin = 0
     plt.ymax = 10
@@ -100,7 +100,10 @@ def Graph_Of_Current_Grades(students, number_of_st):
         grades.append(list(students[number_of_st].results[num+1].values()))
         dates.append(list(students[number_of_st].results[num+1].keys()))
         for k in range(len(dates[i])):
-                dates[i][k] = datetime.datetime.strptime(dates[i][k], '%Y-%m-%d')
+                try:
+                    dates[i][k] = datetime.datetime.strptime(dates[i][k], '%Y-%m-%d')
+                except ValueError:
+                    dates[i][k] = datetime.datetime.fromordinal(datetime.datetime(1900, 1, 1).toordinal() + int(float(dates[i][k])) - 2)
                 dates[i][k] = dates[i][k].strftime('%d.%m')
                 all_dates.append(dates[i][k])
         for j in range(len(grades[i])):
