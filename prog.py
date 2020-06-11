@@ -29,14 +29,7 @@ def Current_student_grades(*file_names):
         if row_number > 0:
             group = sheet.cell(rowx=0, colx=col_number-1).value
             subject = sheet.cell(rowx=1, colx=col_number-1).value
-            i = 2
-            kolvo = 0
-            while sheet.cell(rowx=0, colx=i).value != 'Средний балл' and sheet.cell(rowx=1, colx=i).value != 'Middle point':
-                kolvo += 1
-                i += 1
-            k = 0
             for i in range(1, row_number):
-                #array = [0]*kolvo
                 j = 1
                 k = 0
                 dict_ = {}
@@ -54,10 +47,6 @@ def Current_student_grades(*file_names):
                         continue
                     else:
                         dict_.update({str(value): mark})
-               # dict_.update({sheet.cell(rowx=0, colx=kolvo + 2).value: sheet.cell(rowx=i, colx=kolvo + 2).value})
-               # dict_.update({sheet.cell(rowx=0, colx=kolvo + 3).value: sheet.cell(rowx=i, colx=kolvo + 3).value})
-
-                # отсортирует по возрастанию ключей словаря
                 OrderedDict(sorted(dict_.items(), key=lambda t: t[0]))
                 flag = 0
                 if students != []:
