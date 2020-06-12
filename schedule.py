@@ -10,6 +10,7 @@ def get_schedule(paths):
         sheet = book.sheet_by_index(0)
         module = {}
 
+        # Нахождение длины модуля
         i = 0
         while sheet.cell_value(i, 0).find("Факультет") == -1:
             i += 1
@@ -20,6 +21,7 @@ def get_schedule(paths):
         end = int(txt[pos2 - 2:pos2]) + (int(txt[pos2 + 1:pos2 + 3]) - 1) * 30
         module['module_length'] = end - start
 
+        # Создание таблицы корпусов и их цветов в таблице
         places = []
         i = 0
         while sheet.cell_value(i, 0).find("Корпус") == -1:
@@ -39,6 +41,7 @@ def get_schedule(paths):
             places.append({"name": sheet.cell_value(start, i), "color": pattern_colour})
             i += 1
 
+        # Заполнение таблицы слитых клеток
         is_merged = [[None] * sheet.ncols for i in range(sheet.nrows)]
         for crange in sheet.merged_cells:
             rlo, rhi, clo, chi = crange
@@ -46,13 +49,15 @@ def get_schedule(paths):
                 for col in range(clo, chi):
                     is_merged[row][col] = (rlo, clo)
 
+        # Проход по таблице и заполнение структуры данных table
         table = []
         column = 2
-        while sheet.cell_value(start + 1, column) != "":
-            group = {"name": sheet.cell_value(start + 1, column)}
+        while sheet.cell_value(start + 1, column) != "":  # Пока в столбце есть название группы
+            group = {"name": sheet.cell_value(start + 1, column)}  # Сохраняем название группы
             schedule = []
-            for i in range(start + 2, start + 2 + (6 * 6), 6):
-                day = {"name": sheet.cell_value(i, 0)}
+            for i in range(start + 2, start + 2 + (6 * 6), 6):  # Проходим циклом по 6-ти дням недели для текущей группы
+                day = {"name": sheet.cell_value(i, 0)}  # Сохраняем название дня недели
+                # Узнаем цвет фона текущего дня недели и название корпуса в таблице
                 xfx = sheet.cell_xf_index(i, column)
                 xf = book.xf_list[xfx]
                 bgx = xf.background.pattern_colour_index
@@ -66,13 +71,14 @@ def get_schedule(paths):
 
                 upper_week = []
                 lower_week = []
-                for j in range(i, i + 6):
+                for j in range(i, i + 6):  # Проходим циклом по 6-ти парам в текущий день для текущей группы
                     lesson = {}
                     lesson["subject"] = sheet.cell_value(j, column).strip()
                     lesson["cab"] = sheet.cell_value(j, column + 1)
                     if lesson["subject"] == "" and is_merged[j][column] is None:
                         lesson["subject"] = "Нет пары"
                         lesson["cab"] = "Нет пары"
+                    # Если данная клетка слита, то узнаем название предмета и номер кабинета по родительской клетке
                     elif is_merged[j][column]:
                         lesson["subject"] = sheet.cell_value(is_merged[j][column][0], is_merged[j][column][1])
                         c = is_merged[j][column][1]
@@ -85,11 +91,15 @@ def get_schedule(paths):
                     else:
                         xfx = sheet.cell_xf_index(is_merged[j][column][0], is_merged[j][column][1])
                     xf = book.xf_list[xfx]
-                    if xf.border.diag_down == 1:
+                    if xf.border.diag_down == 1:   # Проверяем разделение клетки на верхнюю и нижнюю недели
                         text = lesson["subject"].split("\n", maxsplit=1)
+                        # Если в названии предмета поставлен '\n', делим его на две части, первая относится
+                        # к верхней недели, вторая - к нижней
                         if len(text) > 1:
                             upper_week.append({"subject": text[0].strip(), "cab": lesson["cab"]})
                             lower_week.append({"subject": text[1].strip(), "cab": lesson["cab"]})
+                        # В противном случае определяем тип выравнивания текста, прижат к верху - верхняя неделя,
+                        # к низу - нижняя неделя
                         else:
                             align = xf.alignment.hor_align
                             if align == 1:
@@ -121,7 +131,7 @@ def print_chart(tables, module, group):
 
     windows = {'lower_week': [0 for i in range(6)],
                'upper_week': [0 for i in range(6)]}
-
+    # Подсчет количества окон и учебных часов для каждого дня верхней/нижней недели
     for i in range(6):
         first = -1
         last = 0
@@ -148,7 +158,7 @@ def print_chart(tables, module, group):
 
     total_work = [0 for i in range(6)]
     total_win = [0 for i in range(6)]
-
+    # Подсчет суммарного количества окон и учебных часов за модуль
     k = module_length // 14
     for j in range(6):
         total_work[j] = (working_hours['upper_week'][j] + working_hours['lower_week'][j]) * k
@@ -193,7 +203,7 @@ if __name__ == "__main__":
     print(table[1]["name"])
     print(table[1]["schedule"][0]["name"])
     print(table[1]["schedule"][0]["place"])
-    print(table[1]["schedule"][0]["lower_week"][0])
-    print(table[1]["schedule"][0]["upper_week"][0])
-    print(tables[1]['module_length'])
-    print_chart(tables, 1, 0)
+    print(table[1]["schedule"][3]["lower_week"][0])
+    print(table[1]["schedule"][3]["upper_week"][1])
+    print(tables[0]['module_length'])
+    print_chart(tables, 0, 0)
