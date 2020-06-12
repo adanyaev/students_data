@@ -1,16 +1,12 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 import sys
-import subprocess
-from random import choice
 from PyQt5.QtWidgets import QSizePolicy, QMessageBox
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
 from Canvas import Graphic
-import prog
+from Current_Grades import *
 from copy import deepcopy
-from misha import *
-from egor import *
+from semester_sheet import *
+from start_data import *
 from matplotlib.figure import Figure
 
 class MainWindow(QMainWindow):
@@ -20,19 +16,7 @@ class MainWindow(QMainWindow):
         self.CreateFrames()
         self.CreateMenu()
 
-    def CreateGraphic(self):
-        self.graphic.Plot()
-        if self.chart_combo.currentText() == 'Bar chart':
-            print('bar')
-        elif self.chart_combo.currentText() == 'Curve chart':
-            print('curve')
-        elif self.chart_combo.currentText() == 'Pie chart':
-            print('Pie')
-
-
-
     def InitUI(self):
-        #self.setStyleSheet(open('style.css', 'r').read())
         self.setGeometry(500, 500, 500, 500)
         self.showMaximized()
         self.fig = Figure(figsize=(10, 10), dpi=10)
@@ -72,7 +56,6 @@ class MainWindow(QMainWindow):
 
         self.txt_field = QTextEdit()
         self.txt_field2 = QTextEdit()
-        #self.txt_field.setStyleSheet(open('style.css', 'r').read())
         self.file_tree = QTreeView()
         self.manage_tabs = QTabWidget()
         self.show_info_tabs = QTabWidget()
@@ -91,7 +74,6 @@ class MainWindow(QMainWindow):
 
         self.manage_tabs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.manage_tabs.setAutoFillBackground(True)
-        #self.show_info_tabs.setStyleSheet(open('style.css', 'r').read())
         self.process_btn = QPushButton('Process')
         self.process_btn.clicked.connect(self.ProcessData)
         self.build_graphic_btn = QPushButton('Build curve chart')
@@ -103,9 +85,6 @@ class MainWindow(QMainWindow):
 
         self.file_type_combo = QComboBox()
         self.file_type_combo.addItems(['Ведомости', 'Данные абитуриентов', 'Оценки', 'Расписание'])
-        #self.chart_combo = QComboBox()
-        #self.chart_combo.addItems(['Curve chart', 'Pie chart', 'Bar chart'])
-
         self.student_combo = QComboBox()
 
         self.button_lay.addWidget(self.build_graphic_btn, QtCore.Qt.AlignTop)
@@ -119,10 +98,6 @@ class MainWindow(QMainWindow):
         #self.graphic_frame.setLayout(self.button_lay)
         self.table_lay.addWidget(self.table)
 
-    #        self.txt_field.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-#        self.txt_field.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-
-
     def ProcessData(self):
         if self.file_type_combo.currentText() == 'Ведомости':
             self.data = {}
@@ -135,7 +110,7 @@ class MainWindow(QMainWindow):
             counter = 0
             mark_cnt = 2
             main_data = []
-            for student in prog.Current_student_grades(*files):
+            for student in Current_student_grades(*files):
                 self.table.setItem(cnt, 0,
                 QTableWidgetItem(str(student.name)))
                 self.table.setSpan(cnt, 0, 3, 1)
@@ -171,8 +146,8 @@ class MainWindow(QMainWindow):
     def CreateCurveChart(self):
         if self.file_type_combo.currentText() == 'Ведомости':
             mytuple = self.all_chosen_files
-            arr = prog.Current_student_grades(*mytuple)  # вызов моей функции, передаем кортеж в качестве аргумента
-            self.fig = prog.Graph_Of_Current_Grades(students=arr, number_of_st=self.student_combo.currentIndex())
+            arr = Current_student_grades(*mytuple)
+            self.fig = Graph_Of_Current_Grades(students=arr, number_of_st=self.student_combo.currentIndex())
             self.graphic_lay.removeWidget(self.figure)
             self.figure = Graphic(self.fig)
             self.graphic_lay.addWidget(self.figure)
@@ -202,7 +177,7 @@ class MainWindow(QMainWindow):
     def CreateBarChart(self):
         if self.file_type_combo.currentText() == 'Оценки':
             for name in self.all_chosen_files:
-                name_of_file = name #r'C:\Users\79527\Desktop\19pi_example.xls'
+                name_of_file = name
                 scrs, as10 = Pars(name_of_file)
                 self.bar_chart = Gist(scrs, as10)
                 try:
@@ -227,35 +202,31 @@ class MainWindow(QMainWindow):
         inside_lay.addWidget(self.process_btn)
         inside_lay.addWidget(self.file_type_combo)
         form_frame.setLayout(form_lay)
-        ver_frame = QFrame()
-        ver_frame.setFrameShape(QFrame.StyledPanel)
+        vertical_main_frame = QFrame()
+        vertical_main_frame.setFrameShape(QFrame.StyledPanel)
 
         ver_box = QVBoxLayout()
         ver_box.setContentsMargins(25, 20, 25, 25)
         ver_box.addWidget(self.scroll_info)
-        ver_frame.setLayout(ver_box)
+        vertical_main_frame.setLayout(ver_box)
 
         horizontal_splitter = QSplitter(QtCore.Qt.Horizontal)
         horizontal_splitter.addWidget(form_frame)
-        horizontal_splitter.addWidget(ver_frame)
+        horizontal_splitter.addWidget(vertical_main_frame)
 
         vertical_splitter = QSplitter(QtCore.Qt.Vertical)
         vertical_splitter.addWidget(horizontal_splitter)
 
-        vbox = QVBoxLayout()
-        vbox.addWidget(vertical_splitter)
-        #ver_frame.setStyleSheet(open('style.css', 'r').read())
-        #form_frame.setStyleSheet(open('style.css', 'r').read())
-        self.group_box.setLayout(vbox)
+        vertical_main_box = QVBoxLayout()
+        vertical_main_box.addWidget(vertical_splitter)
+        self.group_box.setLayout(vertical_main_box)
 
     def CreateMenu(self):
         menubar = self.menuBar()
-        #menubar.setStyleSheet(open('style.css', 'r').read())
         file_menu = menubar.addMenu('File')
         import_project = QAction('New', self)
         import_project.setShortcut('Ctrl+Q')
 
-        #menubar.setStyleSheet(open('style.css', 'r').read())
         import_project.triggered.connect(self.CreateFileTree)
         file_menu.addAction(import_project)
 
@@ -267,11 +238,6 @@ class MainWindow(QMainWindow):
 
         file_menu.addAction(save_curve_chart)
         file_menu.addAction(save_bar_chart)
-
-
-       # edit = menubar.addMenu('Edit')
-       # view = menubar.addMenu('View')
-       # navigate = menubar.addMenu('Navigate')
 
     def SaveCurveChart(self):
         self.fig.savefig(str(self.student_combo.currentText()))
@@ -305,17 +271,13 @@ class MainWindow(QMainWindow):
             files.append(i)
         files = tuple(files)
 
-        #self.data = {}
         main_data = []
-        for student in prog.Current_student_grades(*files):
+        for student in Current_student_grades(*files):
             main_data.append(student.group)
             main_data.append(student.results)
             self.data[student.name] = main_data
             main_data = []
         print(self.data)
-
-        #self.txt_field.setText(info_from_file)
-        #file.close()
 
 def main():
     app = QApplication(sys.argv)
