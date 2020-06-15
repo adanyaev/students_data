@@ -7,14 +7,14 @@ def Pars(name_of_file):
     fil = xlrd.open_workbook(name_of_file)
     sheet = fil.sheet_by_index(0)
 
-    rownum = 0
+    rowbeg = 0
 
     for rr in range(sheet.nrows):
         for cc in range(sheet.ncols):
             if sheet.cell(rr, cc).value == 'Номер студенческого билета':
-                rownum = rr + 2
+                rowbeg = rr + 2
 
-    rr = rownum
+    rr = rowbeg
 
     while (True):
         if sheet.cell(rr, 2).value == '':
@@ -25,11 +25,9 @@ def Pars(name_of_file):
 
     as10 = []
 
-    sl = rend - rownum
-
-    while rownum <= rend:
-        as10.append(int(sheet.cell(rownum, 9).value))
-        rownum += 1
+    while rowbeg <= rend:
+        as10.append(int(sheet.cell(rowbeg, 9).value))
+        rowbeg += 1
 
     scores = []
     k = 0
@@ -37,10 +35,10 @@ def Pars(name_of_file):
         scores.append(0)
         k += 1
 
-    n = 0
-    while n <= sl:
-        scores[as10[n] - 1] += 1
-        n += 1
+    k = 0
+    while k < len(as10):
+        scores[as10[k] - 1] += 1
+        k += 1
 
     print(as10)
     print(scores)
