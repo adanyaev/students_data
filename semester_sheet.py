@@ -40,9 +40,6 @@ def Pars(name_of_file):
         scores[as10[k] - 1] += 1
         k += 1
 
-    print(as10)
-    print(scores)
-
     return scores, as10
 
 
