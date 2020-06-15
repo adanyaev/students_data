@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 def Pars(name_of_file):
-    fil = xlrd.open_workbook(name_of_file, formatting_info=True)
+    fil = xlrd.open_workbook(name_of_file)
     sheet = fil.sheet_by_index(0)
 
     rownum = 0
