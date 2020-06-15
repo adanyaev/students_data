@@ -4,14 +4,6 @@ import matplotlib.pyplot as plt
 
 
 def Pars(name_of_file):
-    class Student(object):
-        as10 = None
-        as5 = None
-        studbil = None
-        name = None
-        number = None
-
-
     fil = xlrd.open_workbook(name_of_file, formatting_info=True)
     sheet = fil.sheet_by_index(0)
 
@@ -23,7 +15,7 @@ def Pars(name_of_file):
                 rownum = rr + 2
 
     rr = rownum
-    rend = 0
+
     while (True):
         if sheet.cell(rr, 2).value == '':
             rend = rr
@@ -31,24 +23,15 @@ def Pars(name_of_file):
         rr += 1
     rend -= 1
 
-    students = []
+    as10 = []
 
     sl = rend - rownum
 
     while rownum <= rend:
-        j = Student()
-
-        j.number = int(sheet.cell(rownum, 1).value)
-        j.studbil = sheet.cell(rownum, 2).value
-        j.name = sheet.cell(rownum, 3).value
-        j.as10 = int(sheet.cell(rownum, 9).value)
-        j.as5 = sheet.cell(rownum, 10).value
-
-        students.append(j)
+        as10.append(int(sheet.cell(rownum, 9).value))
         rownum += 1
 
     scores = []
-    allsc = []
     k = 0
     while k < 10:
         scores.append(0)
@@ -56,13 +39,13 @@ def Pars(name_of_file):
 
     n = 0
     while n <= sl:
-        scores[students[n].as10 - 1] += 1
-        allsc.append(students[n].as10)
+        scores[as10[n] - 1] += 1
         n += 1
 
-    students.sort(key=lambda Student: Student.number)
+    print(as10)
+    print(scores)
 
-    return scores, sl, allsc
+    return scores, as10
 
 
 def Gist():
@@ -70,16 +53,15 @@ def Gist():
     plt.xlabel("Оценки по десятибальной шкале")
     plt.ylabel("Количество учеников, получивших соответсвующую оценку")
     i = 0
-    allsccopy = allsc
+    allsccopy = as10.copy()
     allsccopy.sort()
     x = np.arange(0.5, 11.5, 1)
-    plt.hist(allsccopy, bins=x, edgecolor="black",rwidth=0.95, color="red")
+    plt.hist(allsccopy, bins=x, edgecolor="black", rwidth=0.95, color="red")
     plt.xlim(0.5, 10.5)
     plt.ylim(0, max(scrs) + 0.5)
     plt.show()
 
 
-name_of_file = "19pi_example.xls"
-scrs, numofst, allsc = Pars(name_of_file)
-numofst += 1
+name_of_file = input()
+scrs, as10 = Pars(name_of_file)
 Gist()
