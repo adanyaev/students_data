@@ -62,7 +62,11 @@ def start_data_parsing(file_path):      # Принимает путь к фай�
         tmp_student.update({subject4: mark4})
         students.append(tmp_student)
 
-    return data, students
+        subject_list = [subject1, subject2, subject3]
+        if data[subject4][0] != "":
+            subject_list.append(subject4)
+
+    return data, students, subject_list
 
 
 def start_data_drawPiechart():              # Распределение конкурсных баллов по всем предметам
@@ -114,7 +118,7 @@ def start_data_topTen(subject):            # Принимает название
     return
 
 top_num = 10
-main_data, students_list = start_data_parsing("D:\\Python\\PY PROJECTS\\19pi.xlsx")
-#start_data_drawHistogramm('Информатика и ИКТ')
+main_data, students_list, subjects = start_data_parsing("D:\\Python\\PY PROJECTS\\19pi.xlsx")
+#start_data_drawHistogramm(subjects[2])
 #start_data_drawPiechart()
-#start_data_topTen('Математика')
+#start_data_topTen(subjects[0])
