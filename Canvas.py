@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import QSizePolicy
 import numpy as np
-from semester_sheet import *
+from misha import *
 import Current_Grades
 
 class Graphic(FigureCanvas):

@@ -192,6 +192,6 @@ def print_chart(tables, module, group):
     ax.set_xticklabels(days)
     ax.legend()
 
-    plt.show()
+    #plt.show()
 
-    return
+    return fig

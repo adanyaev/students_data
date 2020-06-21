@@ -44,6 +44,7 @@ def Pars(name_of_file):
 
 
 def Gist():
+    fig = fig = plt.figure(figsize=(10, 6))
     plt.title = "Распределение количчества оценок"
     plt.xlabel("Оценки по десятибальной шкале")
     plt.ylabel("Количество учеников, получивших соответсвующую оценку")
@@ -54,9 +55,11 @@ def Gist():
     plt.hist(allsccopy, bins=x, edgecolor="black", rwidth=0.95, color="red")
     plt.xlim(0.5, 10.5)
     plt.ylim(0, max(scrs) + 0.5)
-    plt.show()
+#    plt.show()
+    return fig
 
 
-name_of_file = input()
-scrs, as10 = Pars(name_of_file)
-Gist()
+if __name__ == '__main__':
+    name_of_file = input()
+    scrs, as10 = Pars(name_of_file)
+    Gist()

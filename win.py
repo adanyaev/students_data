@@ -7,6 +7,7 @@ from prog import *
 from copy import deepcopy
 from semester_sheet import *
 from excelparsing import *
+from schedule import *
 from matplotlib.figure import Figure
 
 class MainWindow(QMainWindow):
@@ -129,12 +130,22 @@ class MainWindow(QMainWindow):
         self.graphic_frame.setLayout(self.graphic_lay)
         #self.graphic_frame.setLayout(self.button_lay)
         self.table_lay.addWidget(self.table)
+        self.no_chosen_files_msg = QMessageBox()
+        self.no_chosen_files_msg.setWindowTitle('Ошибка')
+        self.no_chosen_files_msg.setText('Не выбраны файлы')
+        self.wrong_files_msg = QMessageBox()
+        self.wrong_files_msg.setWindowTitle('Ошибка')
+        self.wrong_files_msg.setText('Тип файлов не соответствует выбранному')
 
 
     def ProcessData(self):
+        self.GetHighlightedPaths()
+        if len(self.all_chosen_files) == 0:
+            self.no_chosen_files_msg.exec()
+            return
+
         if self.file_type_combo.currentText() == 'Ведомости':
             self.data = {}
-            self.GetHighlightedPaths()
             files = []
             for i in self.all_chosen_files:
                 files.append(i)
@@ -143,108 +154,139 @@ class MainWindow(QMainWindow):
             counter = 0
             mark_cnt = 2
             main_data = []
-            for student in Current_student_grades(*files):
-                self.table.setItem(cnt, 0,
-                QTableWidgetItem(str(student.name)))
-                self.table.setSpan(cnt, 0, 3, 1)
-                self.student_combo.addItem(str(student.name))
+            try:
+                for student in Current_student_grades(*files):
+                    self.table.setItem(cnt, 0,
+                    QTableWidgetItem(str(student.name)))
+                    self.table.setSpan(cnt, 0, 3, 1)
+                    self.student_combo.addItem(str(student.name))
 
-                main_data.append(student.group)
-                main_data.append(student.results)
-                self.data[deepcopy(student.name)] = main_data
-                main_data = []
+                    main_data.append(student.group)
+                    main_data.append(student.results)
+                    self.data[deepcopy(student.name)] = main_data
+                    main_data = []
 
-                for i in range(len(student.results)):
-                    if type(student.results[i]) == str:
-                        self.table.setItem(counter, 1,
-                        QTableWidgetItem(str(student.results[i])))
-                    else:
-                        for j in student.results[i]:
-                            self.table.setItem(counter - 1, mark_cnt,
-                            QTableWidgetItem(str(j) + '/' + str(student.results[i][j])))
-                            mark_cnt += 1
-                    mark_cnt = 2
-                    counter += 1
-                cnt += 3
-                counter = cnt
+                    for i in range(len(student.results)):
+                        if type(student.results[i]) == str:
+                            self.table.setItem(counter, 1,
+                            QTableWidgetItem(str(student.results[i])))
+                        else:
+                            for j in student.results[i]:
+                                self.table.setItem(counter - 1, mark_cnt,
+                                QTableWidgetItem(str(j) + '/' + str(student.results[i][j])))
+                                mark_cnt += 1
+                        mark_cnt = 2
+                        counter += 1
+                    cnt += 3
+                    counter = cnt
+            except IndexError:
+                self.wrong_files_msg.exec()
+
         elif self.file_type_combo.currentText() == 'Данные абитуриентов':
-            self.GetHighlightedPaths()
             self.start_data = []
             self.main_data = []
             self.students_list = []
             self.subjects = []
-            for i in self.all_chosen_files:
-                self.file_idx_combo.addItem(str(i.split('/')[-1]))
-                self.start_data.append(i)
-                self.main_data, self.students_list, self.subjects = start_data_parsing(i)
-                self.subject_combo.addItems(self.subjects)
+            try:
+                for i in self.all_chosen_files:
+                    self.file_idx_combo.addItem(str(i.split('/')[-1]))
+                    self.start_data.append(i)
+                    self.main_data, self.students_list, self.subjects = start_data_parsing(i)
+                    self.subject_combo.addItems(self.subjects)
+            except TypeError:
+                self.wrong_files_msg.exec()
 
         elif self.file_type_combo.currentText() == 'Расписание':
-            self.GetHighlightedPaths()
-            paths = []
-            for i in self.all_chosen_files:
-                paths.append(i)
-            self.tables = get_schedule(paths)
-            table = self.tables[1]['table']
-            for i in range(len(table)):
-                self.students_group_combo.addItem(table[i]['name'])
-            for i in range(len(self.tables)):
-                self.module_combo.addItem('module ' + str(i + 1))
+            try:
+                paths = []
+                for i in self.all_chosen_files:
+                    paths.append(i)
+                self.tables = get_schedule(paths)
+                table = self.tables[1]['table']
+                for i in range(len(table)):
+                    self.students_group_combo.addItem(table[i]['name'])
+                for i in range(len(self.tables)):
+                    self.module_combo.addItem('module ' + str(i + 1))
+            except NotImplementedError:
+                pass
         else:
             self.GetHighlightedPaths()
 
     def GetHighlightedPaths(self):
-        chosen_files = self.file_tree.selectionModel().selectedIndexes()
-        self.all_chosen_files = set()
-        for i in chosen_files:
-            self.all_chosen_files.add(self.file_model.fileInfo(i).absoluteFilePath())
+        try:
+            chosen_files = self.file_tree.selectionModel().selectedIndexes()
+            self.all_chosen_files = set()
+            for i in chosen_files:
+                self.all_chosen_files.add(self.file_model.fileInfo(i).absoluteFilePath())
+        except AttributeError:
+            self.all_chosen_files = set()
 
     def CreateCurveChart(self):
         if self.file_type_combo.currentText() == 'Ведомости':
-            mytuple = self.all_chosen_files
-            arr = Current_student_grades(*mytuple)
-            self.fig = Graph_Of_Current_Grades(students=arr, number_of_st=self.student_combo.currentIndex())
-            self.graphic_lay.removeWidget(self.figure)
-            self.figure = Graphic(self.fig)
-            self.graphic_lay.addWidget(self.figure)
+            try:
+                mytuple = self.all_chosen_files
+                arr = Current_student_grades(*mytuple)
+                self.fig = Graph_Of_Current_Grades(students=arr, number_of_st=self.student_combo.currentIndex())
+                self.graphic_lay.removeWidget(self.figure)
+                self.figure = Graphic(self.fig)
+                self.graphic_lay.addWidget(self.figure)
+            except IndexError:
+                self.wrong_files_msg.exec()
         else:
             pass
 
     def CreateScheduleChart(self):
         if self.file_type_combo.currentText() == 'Расписание':
-            if self.schedule_lay.count() > 1:
-                self.schedule_lay.removeWidget(self.hist_chart)
-            self.hist = print_chart(self.tables, self.module_combo.currentIndex(), self.students_group_combo.currentIndex())
-            self.hist_chart = Graphic(self.hist)
-            self.schedule_lay.addWidget(self.hist_chart, 1, QtCore.Qt.AlignTop)
-
-
+            try:
+                if self.schedule_lay.count() > 1:
+                    self.schedule_lay.removeWidget(self.hist_chart)
+                self.hist = print_chart(self.tables, self.module_combo.currentIndex(), self.students_group_combo.currentIndex())
+                self.hist_chart = Graphic(self.hist)
+                self.schedule_lay.addWidget(self.hist_chart, 1, QtCore.Qt.AlignTop)
+            except AttributeError:
+                self.no_chosen_files_msg.exec()
 
     def CreatePieChart(self):
         if self.file_type_combo.currentText() == 'Данные абитуриентов':
-            top_num = 10
-
-            self.main_data, self.students_list, self.subjects = start_data_parsing(self.start_data[self.file_idx_combo.currentIndex()])
-            if self.pie_chart_lay.count() > 1:
-                self.pie_chart_lay.removeWidget(self.pie_chart)
-            self.pie = start_data_drawPiechart(self.main_data)
-            self.pie_chart = Graphic(self.pie)
-            self.pie_chart_lay.addWidget(self.pie_chart)
+            try:
+                self.main_data, self.students_list, self.subjects = start_data_parsing(self.start_data[self.file_idx_combo.currentIndex()])
+            except AttributeError:
+                self.no_chosen_files_msg.exec()
+            except TypeError:
+                self.wrong_files_msg.exec()
+            else:
+                if self.pie_chart_lay.count() > 1:
+                    self.pie_chart_lay.removeWidget(self.pie_chart)
+                self.pie = start_data_drawPiechart(self.main_data)
+                self.pie_chart = Graphic(self.pie)
+                self.pie_chart_lay.addWidget(self.pie_chart)
 
     def CreateHist(self):
         if self.file_type_combo.currentText() == 'Данные абитуриентов':
-            self.main_data, self.students_list, self.subjects = start_data_parsing(self.start_data[self.file_idx_combo.currentIndex()])
-            if self.hist_chart_lay.count() > 1:
-                self.hist_chart_lay.removeWidget(self.exams_hist_chart)
-            self.exams_hist = start_data_drawHistogramm(str(self.subject_combo.currentText()), self.main_data)
-            self.exams_hist_chart = Graphic(self.exams_hist)
-            self.hist_chart_lay.addWidget(self.exams_hist_chart)
+            try:
+                self.main_data, self.students_list, self.subjects = start_data_parsing(self.start_data[self.file_idx_combo.currentIndex()])
+            except AttributeError:
+                self.no_chosen_files_msg.exec()
+            except TypeError:
+                self.wrong_files_msg.exec()
+            else:
+                if self.hist_chart_lay.count() > 1:
+                    self.hist_chart_lay.removeWidget(self.exams_hist_chart)
+                self.exams_hist = start_data_drawHistogramm(str(self.subject_combo.currentText()), self.main_data)
+                self.exams_hist_chart = Graphic(self.exams_hist)
+                self.hist_chart_lay.addWidget(self.exams_hist_chart)
 
     def CreateBarChart(self):
         if self.file_type_combo.currentText() == 'Оценки':
-            for name in self.all_chosen_files:
-                name_of_file = name
-                scrs, as10 = Pars(name_of_file)
+            if not self.all_chosen_files:
+                return
+            try:
+                for name in self.all_chosen_files:
+                    name_of_file = name
+                    scrs, as10 = Pars(name_of_file)
+            except:
+                self.wrong_files_msg.exec()
+            else:
                 self.bar_chart = Gist(scrs, as10)
                 if self.bar_chart_lay.count() > 1:
                     self.bar_chart_lay.removeWidget(self.bar)
@@ -306,7 +348,16 @@ class MainWindow(QMainWindow):
         self.fig.savefig(str(self.student_combo.currentText()))
 
     def SaveBarChart(self):
-        self.bar_chart.savefig('barchart')
+        self.bar_chart.savefig('marks')
+
+    def SaveScheduleChart(self):
+        self.hist_chart.savefig('schedule')
+
+    def SavePieChart(self):
+        self.pie_chart.savefig('start_data')
+
+    def SaveHistChart(self):
+        self.exams_hist.savefig('exams')
 
     def CreateFileTree(self):
         options = QFileDialog.DontResolveSymlinks

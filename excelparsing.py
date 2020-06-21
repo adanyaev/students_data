@@ -65,11 +65,6 @@ def start_data_parsing(file_path):      # Принимает путь к фай�
         subject_list = [subject1, subject2, subject3]
         if data[subject4][0] != "":
             subject_list.append(subject4)
-<<<<<<< HEAD
-=======
-
-    return data, students, subject_list
->>>>>>> 0b9db274a6500a7f1d40943787720d8c9dd8621e
 
     return data, students, subject_list
 
