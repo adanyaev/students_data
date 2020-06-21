@@ -65,6 +65,11 @@ def start_data_parsing(file_path):      # Принимает путь к фай�
         subject_list = [subject1, subject2, subject3]
         if data[subject4][0] != "":
             subject_list.append(subject4)
+<<<<<<< HEAD
+=======
+
+    return data, students, subject_list
+>>>>>>> 0b9db274a6500a7f1d40943787720d8c9dd8621e
 
     return data, students, subject_list
 
@@ -121,6 +126,7 @@ def start_data_topTen(subject):            # Принимает название
         print(students_list[i]['ФИО'], "-", str(students_list[i][subject]))
     return
 
+
 if __name__ == '__main__':
     top_num = 10
     main_data, students_list, subjects = start_data_parsing()
@@ -130,3 +136,4 @@ if __name__ == '__main__':
    # start_data_drawHistogramm('Информатика и ИКТ')
     #start_data_drawPiechart()
     #start_data_topTen('Математика')
+
