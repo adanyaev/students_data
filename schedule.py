@@ -1,7 +1,7 @@
 import xlrd
 import matplotlib.pyplot as plt
 import numpy as np
-
+from pprint import pprint
 
 def get_schedule(paths):
     tables = []
@@ -75,6 +75,8 @@ def get_schedule(paths):
                     lesson = {}
                     lesson["subject"] = sheet.cell_value(j, column).strip()
                     lesson["cab"] = sheet.cell_value(j, column + 1)
+                    if type(lesson["cab"]) is float:
+                        lesson["cab"] = int(lesson["cab"])
                     if lesson["subject"] == "" and is_merged[j][column] is None:
                         lesson["subject"] = "Нет пары"
                         lesson["cab"] = "Нет пары"
@@ -85,6 +87,8 @@ def get_schedule(paths):
                         while is_merged[j][column] == is_merged[is_merged[j][column][0]][c]:
                             c += 1
                         lesson["cab"] = sheet.cell_value(is_merged[j][column][0], c)
+                        if type(lesson["cab"]) is float:
+                            lesson["cab"] = int(lesson["cab"])
                     lesson["subject"] = lesson["subject"].strip()
                     if is_merged[j][column] is None:
                         xfx = sheet.cell_xf_index(j, column)
@@ -191,19 +195,3 @@ def print_chart(tables, module, group):
     plt.show()
 
     return
-
-
-if __name__ == "__main__":
-    path1 = r'D:\other\code\PyCode\excel\module2.1.xls'
-    path2 = r'D:\other\code\PyCode\excel\module3.1.xls'
-    paths = [path1, path2]
-    tables = get_schedule(paths)
-    table = tables[0]['table']
-    print(table)
-    print(table[1]["name"])
-    print(table[1]["schedule"][0]["name"])
-    print(table[1]["schedule"][0]["place"])
-    print(table[1]["schedule"][3]["lower_week"][0])
-    print(table[1]["schedule"][3]["upper_week"][1])
-    print(tables[0]['module_length'])
-    print_chart(tables, 0, 0)
