@@ -62,10 +62,15 @@ def start_data_parsing(file_path):      # Принимает путь к фай�
         tmp_student.update({subject4: mark4})
         students.append(tmp_student)
 
-    return data, students
+        subject_list = [subject1, subject2, subject3]
+        if data[subject4][0] != "":
+            subject_list.append(subject4)
+
+    return data, students, subject_list
 
 
-def start_data_drawPiechart():              # Распределение конкурсных баллов по всем предметам
+def start_data_drawPiechart(main_data):              # Распределение конкурсных баллов по всем предметам
+    fig = plt.figure(figsize=(10, 6))
     values = sorted(main_data["Сумма конкурсных баллов"], key=int)
     colors = ['red', 'lightcoral', 'yellowgreen', 'lightskyblue', 'gold']
     slices = []
@@ -89,10 +94,12 @@ def start_data_drawPiechart():              # Распределение кон�
     plt.legend(labels, loc="best")
     plt.axis('equal')
     plt.tight_layout()
-    plt.show()
+    #plt.show()
+    return fig
 
 
-def start_data_drawHistogramm(subject):     # Принимает название предмета (Информатика и ИКТ, Математика или Русский язык)
+def start_data_drawHistogramm(subject, main_data):     # Принимает название предмета (Информатика и ИКТ, Математика или Русский язык)
+    fig = plt.figure()
     plt.xlabel("Баллы ЕГЭ")
     plt.ylabel("Количество сдавших")
     plt.title("Распределение баллов дисциплины: " + subject)
@@ -103,7 +110,8 @@ def start_data_drawHistogramm(subject):     # Принимает названи�
     bins = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110]
     plt.hist(axes, bins=bins, edgecolor='black')
     plt.xlim(min(axes)-10, 110)
-    plt.show()
+    #plt.show()
+    return fig
 
 
 def start_data_topTen(subject):            # Принимает название предмета
@@ -113,8 +121,12 @@ def start_data_topTen(subject):            # Принимает название
         print(students_list[i]['ФИО'], "-", str(students_list[i][subject]))
     return
 
-top_num = 10
-main_data, students_list = start_data_parsing("D:\\Python\\PY PROJECTS\\19pi.xlsx")
-#start_data_drawHistogramm('Информатика и ИКТ')
-#start_data_drawPiechart()
-#start_data_topTen('Математика')
+if __name__ == '__main__':
+    top_num = 10
+    main_data, students_list, subjects = start_data_parsing()
+   # print(subjects)
+   # print(main_data)
+    print(subjects)
+   # start_data_drawHistogramm('Информатика и ИКТ')
+    #start_data_drawPiechart()
+    #start_data_topTen('Математика')

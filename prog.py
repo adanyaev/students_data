@@ -148,16 +148,16 @@ def Graph_Of_Current_Grades(students, number_of_st):
                    labelrotation=35)  # Поворот подписей
 
     plt.legend()
-    plt.show()
+    return fig
+#    plt.show()
 
 
-
-arr = []
-mytuple = ("D:\\19ПИ-3.xlsx", "D:\\Empty.xlsx", "D:\\New.xls", "D:\\vsc.xlsx")     #пример входных данных
-arr = Current_student_grades(*mytuple)                                 #вызов моей функции, передаем кортеж в качестве аргумента
-for i in range(len(arr)):                                              #вывод результата работы функции
-   print(str(arr[i].name) + " " + str(arr[i].group) + " ")
-   print(arr[i].results)
-Graph_Of_Current_Grades(students=arr, number_of_st=4)
-
+if __name__ == '__main__':
+    arr = []
+    #mytuple = ("D:\\19ПИ-3.xlsx", "D:\\Empty.xlsx", "D:\\New.xls", "D:\\vsc.xlsx")     #пример входных данных
+    #arr = Current_student_grades(*mytuple)                                 #вызов моей функции, передаем кортеж в качестве аргумента
+    for i in range(len(arr)):                                              #вывод результата работы функции
+       print(str(arr[i].name) + " " + str(arr[i].group) + " ")
+       print(arr[i].results)
+    Graph_Of_Current_Grades(students=arr, number_of_st=4)
 
