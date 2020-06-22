@@ -341,20 +341,32 @@ class MainWindow(QMainWindow):
         save_bar_chart = QAction('Save bar chart', self)
         save_bar_chart.triggered.connect(self.SaveBarChart)
 
+        save_hist_chart = QAction('Save hist', self)
+        save_hist_chart.triggered.connect(self.SaveHistChart)
+
+        save_schedule_chart = QAction('Save schedule', self)
+        save_schedule_chart.triggered.connect(self.SaveScheduleChart)
+
+        save_pie_chart = QAction('Save pie chart', self)
+        save_pie_chart.triggered.connect(self.SavePieChart)
+
         file_menu.addAction(save_curve_chart)
         file_menu.addAction(save_bar_chart)
+        file_menu.addAction(save_hist_chart)
+        file_menu.addAction(save_schedule_chart)
+        file_menu.addAction(save_pie_chart)
 
     def SaveCurveChart(self):
         self.fig.savefig(str(self.student_combo.currentText()))
 
     def SaveBarChart(self):
-        self.bar_chart.savefig('marks')
+        self.bar.savefig('marks')
 
     def SaveScheduleChart(self):
-        self.hist_chart.savefig('schedule')
+        self.hist.savefig('schedule')
 
     def SavePieChart(self):
-        self.pie_chart.savefig('start_data')
+        self.pie.savefig('start_data')
 
     def SaveHistChart(self):
         self.exams_hist.savefig('exams')
@@ -372,26 +384,6 @@ class MainWindow(QMainWindow):
         self.file_tree.setRootIndex(self.file_model.index(selected_directory))
         self.manage_tabs.addTab(self.file_tree, 'Project')
         self.file_tree.setSelectionMode(QAbstractItemView.MultiSelection)
-
-
-    def OpenFile(self):
-        chosen_files = self.file_tree.selectionModel().selectedIndexes()
-        self.all_chosen_files = set()
-        files = []
-        for i in chosen_files:
-            self.all_chosen_files.add(self.file_model.fileInfo(i).absoluteFilePath())
-
-        for i in self.all_chosen_files:
-            files.append(i)
-        files = tuple(files)
-
-        main_data = []
-        for student in Current_student_grades(*files):
-            main_data.append(student.group)
-            main_data.append(student.results)
-            self.data[student.name] = main_data
-            main_data = []
-        print(self.data)
 
 def main():
     app = QApplication(sys.argv)
