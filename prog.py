@@ -7,7 +7,7 @@ import numpy as np
 from collections import OrderedDict
 import matplotlib.ticker as ticker
 from matplotlib.figure import Figure
-#D:\19ПИ-3.xlsx - это путь к файлу
+
 class STUDENT(object):
     def __init__(self, name='', group='', results=[]):
         self.name = name
@@ -154,9 +154,8 @@ def Graph_Of_Current_Grades(students, number_of_st):
 
 if __name__ == '__main__':
     arr = []
-    #mytuple = ("D:\\19ПИ-3.xlsx", "D:\\Empty.xlsx", "D:\\New.xls", "D:\\vsc.xlsx")     #пример входных данных
-    #arr = Current_student_grades(*mytuple)                                 #вызов моей функции, передаем кортеж в качестве аргумента
-    for i in range(len(arr)):                                              #вывод результата работы функции
+
+    for i in range(len(arr)):
        print(str(arr[i].name) + " " + str(arr[i].group) + " ")
        print(arr[i].results)
     Graph_Of_Current_Grades(students=arr, number_of_st=4)

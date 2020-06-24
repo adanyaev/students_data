@@ -75,8 +75,8 @@ class MainWindow(QMainWindow):
         self.build_schedule_btn.clicked.connect(self.CreateScheduleChart)
         self.students_group_combo = QComboBox()
         self.module_combo = QComboBox()
-        #self.schedule_lay.addWidget(self.build_schedule_btn, 0, QtCore.Qt.AlignTop)
-        #self.schedule_lay.addWidget(self.schedule_combo, 1, QtCore.Qt.AlignTop)
+
+
         self.schedule_button_lay.addWidget(self.build_schedule_btn, 0, QtCore.Qt.AlignTop)
         self.schedule_button_lay.addWidget(self.students_group_combo, 1, QtCore.Qt.AlignTop)
         self.schedule_button_lay.addWidget(self.module_combo, 2, QtCore.Qt.AlignTop)
@@ -89,8 +89,7 @@ class MainWindow(QMainWindow):
         self.table.verticalHeader().setVisible(False)
         self.table.verticalHeader().sectionResizeMode(QHeaderView.Fixed)
 
-        self.txt_field = QTextEdit()
-        self.txt_field2 = QTextEdit()
+
         self.file_tree = QTreeView()
         self.manage_tabs = QTabWidget()
         self.show_info_tabs = QTabWidget()
@@ -121,14 +120,14 @@ class MainWindow(QMainWindow):
         self.student_combo = QComboBox()
 
         self.button_lay.addWidget(self.build_graphic_btn, QtCore.Qt.AlignTop)
-        #self.button_lay.addWidget(self.chart_combo, QtCore.Qt.AlignTop)
+
         self.button_lay.addWidget(self.student_combo, QtCore.Qt.AlignTop)
         self.lay = QHBoxLayout()
         self.graphic_lay.addItem(self.button_lay)
         self.graphic_lay.addWidget(self.figure)
-        #self.graphic_lay.addWidget(self.graphic)
+
         self.graphic_frame.setLayout(self.graphic_lay)
-        #self.graphic_frame.setLayout(self.button_lay)
+
         self.table_lay.addWidget(self.table)
         self.no_chosen_files_msg = QMessageBox()
         self.no_chosen_files_msg.setWindowTitle('Ошибка')
@@ -357,19 +356,24 @@ class MainWindow(QMainWindow):
         file_menu.addAction(save_pie_chart)
 
     def SaveCurveChart(self):
-        self.fig.savefig(str(self.student_combo.currentText()))
+        directory = QFileDialog.getExistingDirectory()
+        self.fig.savefig(str(directory) + '/' + str(self.student_combo.currentText()))
 
     def SaveBarChart(self):
-        self.bar.savefig('marks')
+        directory = QFileDialog.getExistingDirectory()
+        self.bar_chart.savefig(str(directory) + '/' + 'marks')
 
     def SaveScheduleChart(self):
-        self.hist.savefig('schedule')
+        directory = QFileDialog.getExistingDirectory()
+        self.hist.savefig(str(directory) + '/' + 'schedule')
 
     def SavePieChart(self):
-        self.pie.savefig('start_data')
+        directory = QFileDialog.getExistingDirectory()
+        self.pie.savefig(str(directory) + '/' + 'start_data')
 
     def SaveHistChart(self):
-        self.exams_hist.savefig('exams')
+        directory = QFileDialog.getExistingDirectory()
+        self.exams_hist.savefig(str(directory) + '/' + 'exams')
 
     def CreateFileTree(self):
         options = QFileDialog.DontResolveSymlinks

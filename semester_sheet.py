@@ -43,8 +43,8 @@ def Pars(name_of_file):
     return scores, as10
 
 
-def Gist():
-    fig = fig = plt.figure(figsize=(10, 6))
+def Gist(scrs, as10):
+    fig = plt.figure(figsize=(10, 6))
     plt.title = "Распределение количчества оценок"
     plt.xlabel("Оценки по десятибальной шкале")
     plt.ylabel("Количество учеников, получивших соответсвующую оценку")
@@ -60,6 +60,4 @@ def Gist():
 
 
 if __name__ == '__main__':
-    name_of_file = input()
-    scrs, as10 = Pars(name_of_file)
-    Gist()
+    pass
